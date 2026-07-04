@@ -54,9 +54,9 @@ docker login ghcr.io -u YOUR_GITHUB_USER
 Use a GitHub Personal Access Token with `read:packages`.
 
 ## 6) Caddy domain
-Edit `deploy/caddy/Caddyfile` and replace `:80` with your real domain:
+Edit `deploy/caddy/Caddyfile` and set your real domain:
 ```
-your-domain.com {
+managant.com {
   ...
 }
 ```

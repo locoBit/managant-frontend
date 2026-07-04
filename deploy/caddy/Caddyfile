@@ -2,7 +2,7 @@
   # email you@example.com
 }
 
-:80 {
+managant.com, www.managant.com {
   encode gzip
 
   # API: do NOT strip /api prefix
