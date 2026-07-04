@@ -31,7 +31,7 @@ Create `.env` next to `docker-compose.prod.yml`:
 cp .env.prod.example .env
 ```
 Edit `.env`:
-- `GHCR_OWNER` (your github org/user)
+- `GHCR_OWNER` (your github org/user, MUST be lowercase for GHCR, e.g. `locobit`)
 - DB_* vars
 - `GOOGLE_CLIENT_ID`
 

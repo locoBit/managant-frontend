@@ -26,6 +26,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase owner (GHCR requires lowercase)
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -35,5 +38,5 @@ jobs:
             VITE_API_BASE=${{ secrets.VITE_API_BASE }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/managant-web:latest
-            ghcr.io/${{ github.repository_owner }}/managant-web:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/managant-web:latest
+            ghcr.io/${{ env.OWNER_LC }}/managant-web:${{ github.sha }}
