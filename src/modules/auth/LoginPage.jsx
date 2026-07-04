@@ -16,7 +16,8 @@ export default function LoginPage() {
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
-  const clientId = import.meta.env?.VITE_GOOGLE_CLIENT_ID || '';
+  // IMPORTANT: use direct access so Vite can statically replace it at build-time.
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   const handleGoogleLogin = async () => {
     // Google Identity Services script loads window.google

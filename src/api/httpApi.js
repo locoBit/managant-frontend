@@ -4,7 +4,7 @@ function getBaseUrl() {
   // Vite: import.meta.env.*
   // Important: allow empty string '' to mean "same origin".
   try {
-    const env = import.meta.env?.VITE_API_BASE;
+    const env = import.meta.env.VITE_API_BASE;
     return env !== undefined ? env : DEFAULT_BASE;
   } catch {
     return DEFAULT_BASE;
