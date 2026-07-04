@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: managant-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-managant}
+      MYSQL_USER: ${DB_USER:-managant}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-managant}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT_HOST:-3311}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build:
+      context: ../../managant-backend
+    container_name: managant-api
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-managant}
+      DB_USER: ${DB_USER:-managant}
+      DB_PASSWORD: ${DB_PASSWORD:-managant}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: managant-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  mysql_data:
+  caddy_data:
+  caddy_config:

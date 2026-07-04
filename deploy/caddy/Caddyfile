@@ -1,0 +1,16 @@
+{
+  # email you@example.com
+}
+
+# Replace with your real domain.
+# Example: your-domain.com {
+:80 {
+  encode gzip
+
+  root * /usr/share/caddy
+  file_server
+
+  handle_path /api/* {
+    reverse_proxy api:8080
+  }
+}
