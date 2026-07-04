@@ -2,9 +2,10 @@ const DEFAULT_BASE = 'http://localhost:8080';
 
 function getBaseUrl() {
   // Vite: import.meta.env.*
-  // If not present (tests/build tooling), fall back.
+  // Important: allow empty string '' to mean "same origin".
   try {
-    return import.meta.env?.VITE_API_BASE || DEFAULT_BASE;
+    const env = import.meta.env?.VITE_API_BASE;
+    return env !== undefined ? env : DEFAULT_BASE;
   } catch {
     return DEFAULT_BASE;
   }

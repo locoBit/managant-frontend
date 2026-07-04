@@ -2,6 +2,8 @@
 
 Goal: 1 droplet running MySQL + Spring Boot API + Caddy (HTTPS) serving the Vite frontend.
 
+This setup assumes **images are built in GitHub Actions and pushed to GHCR** on every merge to `main`.
+
 ## 1) Create a droplet
 - Ubuntu 24.04 LTS
 - Size: Basic 1GB/1vCPU is usually enough for light prod
@@ -21,22 +23,30 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-## 4) Upload repo + env
-Clone your repos OR upload via scp.
+## 4) Upload deploy bundle + env
+On the droplet, you only need the `deploy/` folder (compose + caddy config).
 
-Create a prod env file next to docker-compose.prod.yml:
+Create `.env` next to `docker-compose.prod.yml`:
 ```bash
-cp ../../managant-backend/.env.example .env
+cp .env.prod.example .env
 ```
 Edit `.env`:
-- DB_NAME/DB_USER/DB_PASSWORD/MYSQL_ROOT_PASSWORD
-- GOOGLE_CLIENT_ID (same as frontend)
+- `GHCR_OWNER` (your github org/user)
+- DB_* vars
+- `GOOGLE_CLIENT_ID`
 
-Frontend:
-- build locally: `npm run build`
-- upload `dist/` to the droplet at the path mounted by compose (`../dist` relative to deploy/).
+Also set these (used by the frontend build in GitHub Actions):
+- `VITE_API_BASE` (recommended: empty string so frontend calls same-origin `/api`)
+- `VITE_GOOGLE_CLIENT_ID`
 
-## 5) Caddy domain
+## 5) Allow pulling GHCR images
+If your GHCR packages are private, login once on the droplet:
+```bash
+docker login ghcr.io -u YOUR_GITHUB_USER
+```
+Use a GitHub Personal Access Token with `read:packages`.
+
+## 6) Caddy domain
 Edit `deploy/caddy/Caddyfile` and replace `:80` with your real domain:
 ```
 your-domain.com {
@@ -45,10 +55,19 @@ your-domain.com {
 ```
 Caddy will auto-issue HTTPS certs.
 
-## 6) Start
-From `managant/deploy` on the droplet:
+## 7) Start
+From `deploy/` on the droplet:
 ```bash
-docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose -f docker-compose.prod.yml pull
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## 8) Update on new merges
+Whenever you merge to main, GitHub Actions pushes new images.
+On the droplet, update with:
+```bash
+docker-compose -f docker-compose.prod.yml pull
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ## 7) Backups (recommended)

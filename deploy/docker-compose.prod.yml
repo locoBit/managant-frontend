@@ -14,8 +14,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   api:
-    build:
-      context: ../../managant-backend
+    image: ghcr.io/${GHCR_OWNER:-REPLACE_ME}/managant-backend-api:${API_TAG:-latest}
     container_name: managant-api
     restart: unless-stopped
     environment:
@@ -29,9 +28,7 @@ services:
       - db
 
   web:
-    build:
-      context: ..
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_OWNER:-REPLACE_ME}/managant-web:${WEB_TAG:-latest}
     container_name: managant-web
     restart: unless-stopped
     ports:
