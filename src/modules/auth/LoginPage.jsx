@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Alert,
   Box,
@@ -53,14 +53,34 @@ export default function LoginPage() {
     return true;
   };
 
+  useEffect(() => {
+    // Pre-init so the button click only triggers the UX prompt.
+    // This avoids GIS "nothing happens" depending on browser heuristics.
+    ensureGoogleInit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleGoogleLogin = async () => {
     try {
       const google = window.google;
       const ok = ensureGoogleInit();
       if (!ok) return;
 
-      // Show One Tap / prompt.
-      google.accounts.id.prompt();
+      google.accounts.id.prompt((notification) => {
+        // If the prompt is not displayed, show a useful error.
+        if (notification?.isNotDisplayed?.()) {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Google Login no se pudo mostrar: ${notification.getNotDisplayedReason?.() || 'unknown'}`,
+          );
+        }
+        if (notification?.isSkippedMoment?.()) {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Google Login fue omitido: ${notification.getSkippedReason?.() || 'unknown'}`,
+          );
+        }
+      });
     } catch {
       // eslint-disable-next-line no-alert
       alert('No se pudo iniciar Google Login');
