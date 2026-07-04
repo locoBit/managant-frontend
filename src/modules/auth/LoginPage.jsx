@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+
+const GIS_SRC = 'https://accounts.google.com/gsi/client';
 import {
   Alert,
   Box,
@@ -53,10 +55,36 @@ export default function LoginPage() {
     return true;
   };
 
+  const loadGoogleIdentityScript = async () => {
+    if (window.google?.accounts?.id) return;
+
+    // Avoid duplicating the script tag.
+    const existing = document.querySelector(`script[src="${GIS_SRC}"]`);
+    if (existing) {
+      await new Promise((resolve) => {
+        existing.addEventListener('load', resolve, { once: true });
+        existing.addEventListener('error', resolve, { once: true });
+      });
+      return;
+    }
+
+    await new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = GIS_SRC;
+      s.async = true;
+      s.defer = true;
+      s.onload = resolve;
+      s.onerror = resolve;
+      document.head.appendChild(s);
+    });
+  };
+
   useEffect(() => {
-    // Pre-init so the button click only triggers the UX prompt.
-    // This avoids GIS "nothing happens" depending on browser heuristics.
-    ensureGoogleInit();
+    // Preload GIS script + init.
+    (async () => {
+      await loadGoogleIdentityScript();
+      ensureGoogleInit();
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
