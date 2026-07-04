@@ -24,6 +24,9 @@ services:
       DB_USER: ${DB_USER:-managant}
       DB_PASSWORD: ${DB_PASSWORD:-managant}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    # Optional: expose API on localhost for debugging (Caddy still proxies /api)
+    ports:
+      - "127.0.0.1:8080:8080"
     depends_on:
       - db
 

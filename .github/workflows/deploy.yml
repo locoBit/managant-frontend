@@ -12,6 +12,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: managant-deploy-web
+      cancel-in-progress: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,3 +44,19 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/managant-web:latest
             ghcr.io/${{ env.OWNER_LC }}/managant-web:${{ github.sha }}
+
+      - name: Deploy (SSH)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: ${{ secrets.DROPLET_SSH_PORT }}
+          script: |
+            set -eu
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Require Docker Compose v2 plugin on the droplet.
+            docker compose version >/dev/null 2>&1
+
+            flock -w 120 /tmp/managant-deploy.lock bash -lc "docker compose -f docker-compose.prod.yml pull web && docker compose -f docker-compose.prod.yml up -d web"
