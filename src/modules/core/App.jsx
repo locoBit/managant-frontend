@@ -1,7 +1,8 @@
 import { Box } from '@mui/material';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '../auth/authSlice.js';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { restoreSessionThunk, selectCurrentUser } from '../auth/authSlice.js';
 import { AppLayout } from './AppLayout.jsx';
 import LoginPage from '../auth/LoginPage.jsx';
 import { RolesPage } from '../roles/RolesPage.jsx';
@@ -12,8 +13,21 @@ import { EventAttendancePage } from '../events/EventAttendancePage.jsx';
 import { UsersAdminPage } from '../users/UsersAdminPage.jsx';
 import { ReportsPage } from '../reports/ReportsPage.jsx';
 
+function hasStoredToken() {
+  try {
+    return !!window.localStorage.getItem('managant-token');
+  } catch {
+    return false;
+  }
+}
+
 function PrivateRoute({ children }) {
   const user = useSelector(selectCurrentUser);
+  const restoreStatus = useSelector((s) => s.auth.restoreStatus);
+
+  // If token exists, give restore a chance BEFORE redirecting.
+  if (!user && hasStoredToken() && restoreStatus !== 'failed') return null;
+
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
@@ -26,6 +40,13 @@ function AdminRoute({ children }) {
 }
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Restore session from stored token on hard reload.
+    dispatch(restoreSessionThunk());
+  }, [dispatch]);
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Routes>
@@ -63,7 +84,7 @@ export default function App() {
                       </AdminRoute>
                     )}
                   />
-                  <Route path="reportes" element={<ReportsPage />} />
+                  <Route path="reportes/*" element={<ReportsPage />} />
                   <Route path="*" element={<Navigate to="/roles" replace />} />
                 </Routes>
               </AppLayout>

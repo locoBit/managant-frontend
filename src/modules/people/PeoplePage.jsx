@@ -136,6 +136,7 @@ export function PeoplePage() {
       lastName: '',
       motherLastName: '',
       birthDate: '',
+      phoneNumber: '',
       initialRoleId: '',
     });
     setError('');
@@ -185,6 +186,7 @@ export function PeoplePage() {
           lastName: form.lastName.trim(),
           motherLastName: form.motherLastName.trim(),
           birthDate: form.birthDate,
+          phoneNumber: form.phoneNumber.trim(),
           ...(form.initialRoleId ? { initialRoleId: form.initialRoleId } : {}),
         }),
       );
@@ -280,7 +282,7 @@ export function PeoplePage() {
             <TableCell>Apellido paterno</TableCell>
             <TableCell>Apellido materno</TableCell>
             <TableCell>Fecha nacimiento</TableCell>
-            <TableCell>CURP variante</TableCell>
+            <TableCell>Teléfono</TableCell>
             {isAdminUser && <TableCell>Acciones</TableCell>}
           </TableRow>
         </TableHead>
@@ -291,7 +293,7 @@ export function PeoplePage() {
               <TableCell>{p.lastName}</TableCell>
               <TableCell>{p.motherLastName}</TableCell>
               <TableCell>{p.birthDate}</TableCell>
-              <TableCell>{p.curp}</TableCell>
+              <TableCell>{p.phoneNumber || ''}</TableCell>
               {isAdminUser && (
                 <TableCell>
                   <Stack direction="row" spacing={1}>
@@ -359,6 +361,16 @@ export function PeoplePage() {
             value={form.birthDate}
             onChange={(e) =>
               setForm((f) => ({ ...f, birthDate: e.target.value }))
+            }
+          />
+
+          <TextField
+            label="Teléfono"
+            fullWidth
+            margin="normal"
+            value={form.phoneNumber}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, phoneNumber: e.target.value }))
             }
           />
 

@@ -74,6 +74,10 @@ export const httpApi = {
     return res;
   },
 
+  async me() {
+    return request('/api/me');
+  },
+
   async logout() {
     try {
       await request('/api/auth/logout', { method: 'POST' });
@@ -209,5 +213,13 @@ export const httpApi = {
 
   async listAttendancesByEvent(eventId) {
     return request(`/api/compat/events/${eventId}/attendance`);
+  },
+
+  async getAreaAttendanceReport({ areaId, start, end }) {
+    const params = new URLSearchParams();
+    params.set('areaId', String(areaId));
+    if (start) params.set('start', String(start));
+    if (end) params.set('end', String(end));
+    return request(`/api/reports/area-attendance?${params.toString()}`);
   },
 };
